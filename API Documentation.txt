@@ -1,0 +1,215 @@
+API Documentation
+Base URL: https://zorvyn-finacial-api.onrender.com
+________________________________________
+Introduction
+This backend provides APIs for user authentication, role-based access control, and financial transaction management.
+All protected routes require a JWT token, which is generated after login. The token must be sent in the Authorization header.
+Format:
+Authorization: Bearer
+________________________________________
+1. Authentication APIs
+Register User
+Endpoint:
+POST /auth/register
+This API is used to create a new user.
+Request Body:
+{
+"name": "admin",
+"email": "admin@gmail.com",
+"password": "123456",
+"role": "ADMIN"
+}
+Explanation:
+•	name is the user's name
+•	email must be unique
+•	password is stored securely (hashed)
+•	role defines access level (ADMIN / ANALYST / VIEWER)
+If role is not given, it can default to VIEWER.
+Response:
+{
+"message": "User registered successfully"
+}
+________________________________________
+Login User
+Endpoint:
+POST /auth/login
+This API verifies user credentials and returns a JWT token.
+Request Body:
+{
+"email": "admin@gmail.com",
+"password": "123456"
+}
+If credentials are correct, a token is returned.
+Response:
+{
+"token": "JWT_TOKEN"
+}
+This token is required for accessing all protected routes.
+________________________________________
+2. User APIs
+Get Profile
+Endpoint:
+GET /user/profile
+This API returns details of the currently logged-in user.
+Headers:
+Authorization: Bearer
+Response:
+{
+"id": "user_id",
+"name": "admin",
+"email": "admin@gmail.com",
+"role": "ADMIN"
+}
+________________________________________
+Admin Route
+Endpoint:
+GET /user/admin
+This route is only accessible by ADMIN users.
+It is mainly used to verify that role-based access control is working correctly.
+________________________________________
+Analyst Route
+Endpoint:
+GET /user/analytics
+Accessible by:
+•	ADMIN
+•	ANALYST
+This route checks whether role-based permissions are correctly implemented.
+________________________________________
+3. Finance APIs
+This is the main part of the project where financial data is handled.
+Each transaction contains:
+•	title
+•	amount
+•	type (INCOME or EXPENSE)
+•	category
+________________________________________
+Create Transaction
+Endpoint:
+POST /finance
+Headers:
+Authorization: Bearer
+Request Body:
+{
+"title": "Salary",
+"amount": 5000,
+"type": "INCOME",
+"category": "JOB"
+}
+Explanation:
+•	title should not be empty
+•	amount must be a number
+•	type must be either INCOME or EXPENSE
+Response:
+{
+"message": "Transaction created successfully",
+"data": { ... }
+}
+________________________________________
+Get All Transactions
+Endpoint:
+GET /finance
+Headers:
+Authorization: Bearer
+This API returns all transactions with support for advanced query options.
+________________________________________
+Filtering
+You can filter transactions by type.
+Example:
+GET /finance?type=INCOME
+________________________________________
+Searching
+You can search transactions using title.
+Example:
+GET /finance?search=sal
+This will match titles like "salary".
+________________________________________
+Sorting
+You can sort results.
+Example:
+GET /finance?sortBy=amount&order=asc
+•	sortBy can be amount or date
+•	order can be asc or desc
+________________________________________
+Pagination
+Used to limit the number of results returned.
+Example:
+GET /finance?page=1&limit=5
+This returns only 5 records per page.
+________________________________________
+Combined Example
+GET /finance?type=INCOME&search=salary&sortBy=amount&order=desc&page=1&limit=5
+________________________________________
+Get Single Transaction
+Endpoint:
+GET /finance/:id
+Returns a specific transaction based on its ID.
+________________________________________
+Update Transaction
+Endpoint:
+PUT /finance/:id
+Headers:
+Authorization: Bearer
+You can update any field like title, amount, type, or category.
+Example:
+{
+"title": "Updated Salary",
+"amount": 6000
+}
+________________________________________
+Delete Transaction
+Endpoint:
+DELETE /finance/:id
+Headers:
+Authorization: Bearer
+Deletes the transaction with the given ID.
+________________________________________
+4. Balance API
+Get Balance
+Endpoint:
+GET /finance/balance
+Headers:
+Authorization: Bearer
+This API calculates:
+•	total income
+•	total expenses
+•	remaining balance
+Logic used:
+balance = total income - total expense
+Response:
+{
+"income": 5000,
+"expense": 2000,
+"balance": 3000
+}
+________________________________________
+5. Error Handling
+Common errors handled in the system:
+401 Unauthorized:
+When token is missing or invalid
+403 Forbidden:
+When user does not have required role
+400 Bad Request:
+When input validation fails
+404 Not Found:
+When resource is not found
+Example:
+{
+"message": "Invalid token"
+}
+________________________________________
+6. Test Login Details
+These accounts can be used for testing:
+Admin:
+admin@gmail.com / 123456
+Analyst:
+analyst@gmail.com / 123456
+Viewer:
+viewer@gmail.com / 123456
+________________________________________
+7. Final Notes
+•	All protected routes require JWT authentication
+•	Role-based access control is enforced using middleware
+•	Data is validated before saving
+•	APIs support real-world features like filtering, searching, sorting, and pagination
+This project focuses on building a clean and structured backend similar to real-world applications.
+
